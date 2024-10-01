@@ -1,1 +1,1 @@
-# projekt_informatyka_2024_25
+# SEBASTIAN DOMANSKI projekt_informatyka_2024_25
