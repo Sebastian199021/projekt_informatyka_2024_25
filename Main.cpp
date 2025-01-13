@@ -15,21 +15,22 @@
 #include <sstream>
 #include <vector>
 
-// Funkcja pomocnicza do zapisu wyniku do pliku:
+// Funkcja pomocnicza do zapisu wyniku do pliku tekstowego scores.txt
 void saveScoreToFile(const std::string& name, int score) {
-    std::ofstream file("scores.txt", std::ios::app); // Otwieramy plik w trybie dopisywania
+    std::ofstream file("scores.txt", std::ios::app); // Dopisywanie danych do pliku
     if (file.is_open()) {
-        file << name << " " << score << std::endl; // Zapisujemy nick i wynik
+        file << name << " " << score << std::endl; // Zapis nazwy i wyniku
     }
     file.close();
 }
 
-//funkcja inicializuj¹ca grê, textury, teksty - zasoby
+// Inicjalizacja zasobów (teksty, tekstury, czcionki)
 bool initializeGame(AssetManager& assetManager, sf::RenderWindow& window, sf::Text& scoreText, sf::Text& livesText, sf::Text& gameOverText, sf::Text& finalScoreText, sf::Text& pauseText, int windowWidth, int windowHeight) {
+// £adowanie tekstur
     if (!assetManager.loadTexture("spaceship", "New Piskel4.png")) return false;
     if (!assetManager.loadTexture("alien", "alien3.png")) return false;
     if (!assetManager.loadFont("default", "arial.ttf")) return false;
-
+// Tworzenie tekstów
     scoreText = assetManager.createText("default", "Score: 0", 24, sf::Color::White, { 10, 10 });
     livesText = assetManager.createText("default", "Lives: 3", 24, sf::Color::White, { 10, 40 });
     gameOverText = assetManager.createText("default", "GAME OVER", 48, sf::Color::Red, { windowWidth / 2.0f - 120.0f, windowHeight / 2.0f - 50.0f });
@@ -39,7 +40,7 @@ bool initializeGame(AssetManager& assetManager, sf::RenderWindow& window, sf::Te
     return true;
 }
 
-//obs³uga zdarzeñ
+// obs³uga zdarzeñ (przyciski)
 void handleEvents(
     sf::RenderWindow& window,
     sf::Event& event,
@@ -53,15 +54,15 @@ void handleEvents(
 ) {
     while (window.pollEvent(event)) {
         if (event.type == sf::Event::Closed) {
-            window.close();
+            window.close(); //Zamkniêcie programu
         }
 
         if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape) {
-            isPaused = !isPaused;
+            isPaused = !isPaused; // W³¹czenie pauzy
         }
 
         if (isPaused && event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Enter) {
-            window.close();
+            window.close(); // Wyjœcie z gry
         }
 
         if (gameOver && !enterName) {
@@ -71,19 +72,19 @@ void handleEvents(
                         playerName.pop_back();
                     }
                 }
-                else if (event.text.unicode == '\r') { // Enter
+                else if (event.text.unicode == '\r') { // Zatwierdzenie nicku
                     enterName = true;
                     saveScoreToFile(playerName, score);
                 }
-                else if (playerName.size() < 15 && isprint(event.text.unicode)) { // Printable character
+                else if (playerName.size() < 15 && isprint(event.text.unicode)) { // Dodawanie znaku
                     playerName += static_cast<char>(event.text.unicode);
                 }
-                enterNameText.setString("Enter your name: " + playerName + "_");
+                enterNameText.setString("Enter your name: " + playerName + "_"); // Aktualizacja nicku na ekranie
             }
         }
     }
 }
-
+//Renderowanie elementów gry
 void renderGame(
     sf::RenderWindow& window,
     const Spaceship& spaceship,
@@ -94,18 +95,18 @@ void renderGame(
     const sf::Text& livesText)
 {
     window.clear(sf::Color::Black);
-
+    // Rysowanie obiektów
     spaceship.draw(window);
     for (const auto& bullet : playerBullets) bullet.draw(window);
     for (const auto& bullet : alienBullets) bullet.draw(window);
     for (const auto& alien : aliens) alien.draw(window);
-
+    //Wyœwietlnie tekstów
     window.draw(scoreText);
     window.draw(livesText);
 
     window.display();
 }
-
+// Enumeracja do zarz¹dzania pozycjami w menu
 enum MenuOption { Play, Scores, Exit };
 
 MenuOption showMainMenu(sf::RenderWindow& window, const AssetManager& assetManager) {
@@ -113,7 +114,7 @@ MenuOption showMainMenu(sf::RenderWindow& window, const AssetManager& assetManag
     sf::Text playOption = assetManager.createText("default", "1. Play", 36, sf::Color::White, { 300, 200 });
     sf::Text scoresOption = assetManager.createText("default", "2. Scores", 36, sf::Color::White, { 300, 260 });
     sf::Text exitOption = assetManager.createText("default", "3. Quit", 36, sf::Color::White, { 300, 320 });
-
+    // Wektor z tekstami menu
     std::vector<sf::Text*> menuOptions = { &playOption, &scoresOption, &exitOption };
     int selectedOption = 0;
     menuOptions[selectedOption]->setFillColor(sf::Color::Yellow);
@@ -195,13 +196,13 @@ void displayScores(sf::RenderWindow& window, const AssetManager& assetManager) {
         sf::Event event;
         while (window.pollEvent(event)) {
             if (event.type == sf::Event::Closed) {
-                window.close(); // Zamkniêcie aplikacji
+                window.close();
                 return;
             }
 
             if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape) {
                 MenuOption selectedOption = showMainMenu(window, assetManager);
-                return; // Wyjœcie z wyœwietlania wyników, powrót do menu
+                return;
             }
 
         }
@@ -214,7 +215,7 @@ void displayScores(sf::RenderWindow& window, const AssetManager& assetManager) {
         window.display();
     }
 }
-
+// Obs³uga przycisków podczas pauzy
 void handlePauseEvents(
     sf::RenderWindow& window,
     sf::Event& event,
@@ -251,13 +252,13 @@ int main()
 
 
 
-    AssetManager assetManager;
+    AssetManager assetManager; // Manager zasobów gry
     sf::Text scoreText, livesText, gameOverText, finalScoreText, pauseText;
 
     if (!initializeGame(assetManager, window, scoreText, livesText, gameOverText, finalScoreText, pauseText, windowWidth, windowHeight)) {
         return -1;
     }
-
+    // Wyœwietlenie menu g³ównego
     MenuOption selectedOption = showMainMenu(window, assetManager);
     if (selectedOption == Exit) {
         return 0;
@@ -265,12 +266,11 @@ int main()
     else if (selectedOption == Scores) {
         displayScores(window, assetManager);
 
-        // Powtarzaj menu, dopóki nie wybierzemy innej opcji
         while (true) {
             selectedOption = showMainMenu(window, assetManager);
 
             if (selectedOption == Scores) {
-                displayScores(window, assetManager); // Ponowne wyœwietlenie wyników
+                displayScores(window, assetManager);
                 continue;
             }
             else if (selectedOption == Play) {
@@ -283,10 +283,10 @@ int main()
     }
 
     int score = 0;
-
+    //Tworzenie statku
     Spaceship spaceship(assetManager.getTexture("spaceship"), windowWidth / 2.0f - 40.0f, windowHeight - 100.0f, 5.0f, 5.0f);
 
-
+    // Inicjalizacja pocisków i obcych
     std::vector<Bullet> playerBullets, alienBullets;
     const float bulletSpeed = 8.0f;
     const float alienBulletSpeed = 4.0f;
@@ -315,18 +315,17 @@ int main()
     bool enterName = false; // Flaga, czy gracz wprowadza nick
     sf::Text enterNameText; // Tekst wyœwietlany podczas wprowadzania nicku
 
-    //enterNameText.setFont(font);
     enterNameText.setFont(assetManager.getFont("default"));
     enterNameText.setCharacterSize(24);
     enterNameText.setFillColor(sf::Color::White);
-    enterNameText.setPosition(windowWidth / 2.0f - 150.0f, windowHeight / 2.0f + 50.0f); // Pozycja pod napisem "GAME OVER"
+    enterNameText.setPosition(windowWidth / 2.0f - 150.0f, windowHeight / 2.0f + 50.0f);
 
-    bool nextLevel = false;                  // Flaga do obs³ugi przejœcia na nowy poziom
-    int currentLevel = 1;                    // Numer aktualnego poziomu
+    bool nextLevel = false;                  // Flaga - czy gracz przechodzi na kolejny poziom
+    int currentLevel = 2;                    // Numer poziomu
     const float alienShootDelayReduction = 0.3f; // Zmniejszenie czasu miêdzy strza³ami kosmitów na poziom
     const float alienSpeedIncrease = 0.3f;       // Zwiêkszenie prêdkoœci kosmitów na poziom
 
-    // Dodaj tekst wyœwietlaj¹cy numer poziomu
+    // Tekst wyœwietlaj¹cy numer poziomu
     sf::Text levelText;
     levelText.setFont(assetManager.getFont("default"));
 
@@ -335,7 +334,7 @@ int main()
     levelText.setString("Level " + std::to_string(currentLevel));
     levelText.setPosition(windowWidth / 2.0f - 100.0f, windowHeight / 2.0f - 50.0f);
 
-
+    // Generowanie nowych kosmitów
     for (int row = 0; row < alienRows; ++row) {
         for (int col = 0; col < alienCols; ++col) {
             float x = col * (40 + alienSpacing) + 50;
@@ -355,8 +354,7 @@ int main()
             if (goToMenu) {
                 // Wywo³anie menu g³ównego
                 MenuOption selectedOption = showMainMenu(window, assetManager);
-                if (selectedOption == Play) {
-                    // Restart gry (opcjonalne resetowanie stanu gry)
+                if (selectedOption == Play) {//po wciœniêciu play gra zaczyna siê od nowa
                     score = 0;
                     spaceship = Spaceship(assetManager.getTexture("spaceship"), windowWidth / 2.0f - 40.0f, windowHeight - 100.0f, 5.0f, 5.0f);
                     playerBullets.clear();
@@ -373,18 +371,18 @@ int main()
                 else if (selectedOption == Scores) {
                     // Wyœwietlanie wyników
                     displayScores(window, assetManager);
-                    continue; // Powrót do menu po wyœwietleniu wyników
+                    continue; // Powrót do menu
                 }
                 else if (selectedOption == Exit) {
                     window.close();
                     return 0; // Zamkniêcie gry
                 }
 
-                goToMenu = false; // Reset flagi po powrocie z menu
+                goToMenu = false;
                 continue;
             }
 
-            // Wyœwietl ekran pauzy
+            // Ekran pauzy
             window.clear(sf::Color::Black);
             window.draw(pauseText);
             window.display();
@@ -397,11 +395,11 @@ int main()
             window.clear(sf::Color::Black);
             window.draw(levelText); // Wyœwietl numer poziomu
             window.display();
-            sf::sleep(sf::seconds(2)); // Pauza przed rozpoczêciem nowego poziomu
+            sf::sleep(sf::seconds(2)); // Zw³oka przed rozpoczêciem nowego poziomu
             nextLevel = false;
 
             // Zwiêkszenie trudnoœci
-            alienShootDelay = std::max(0.5f, alienShootDelay - alienShootDelayReduction); // Minimalna wartoœæ to 0.5 sekundy
+            alienShootDelay = std::max(0.5f, alienShootDelay - alienShootDelayReduction);
             alienSpeed += alienSpeedIncrease;
 
             // Resetowanie kosmitów
@@ -480,8 +478,8 @@ int main()
                 }), aliens.end());
 
             if (aliens.empty() && spaceship.getLives() > 0 && !gameOver) {
-                currentLevel++;   // Zwiêksz numer poziomu
-                nextLevel = true; // Ustaw flagê przejœcia na nowy poziom
+                currentLevel++;   // Zwiêkszanie numeru poziomu
+                nextLevel = true;
             }
 
             // Ruch kosmitów
@@ -494,7 +492,7 @@ int main()
                     minX = std::min(minX, alien.getBounds().left);
                 }
 
-                if ((alienDirection > 0 && maxX >= windowWidth - 10.0f) || (alienDirection < 0 && minX <= 10.0f)) {// 10.0f pozwala na zmianê kierunku przed wyjœciem za ekran(zapas)
+                if ((alienDirection > 0 && maxX >= windowWidth - 10.0f) || (alienDirection < 0 && minX <= 10.0f)) {// 10.0f pozwala na zmianê kierunku przed wyjœciem za ekran (zapas)
                     alienDirection = -alienDirection;
                     moveDown = true;
                 }
@@ -521,15 +519,14 @@ int main()
         }
 
         if (gameOver) {
-            if (!enterName) { // Je¿eli gracz nie wprowadza³ jeszcze nicku
+            if (!enterName) {
                 while (true) {
-                    // Wyœwietlenie statycznego ekranu
                     window.clear(sf::Color::Black);
 
                     window.draw(gameOverText);
                     window.draw(finalScoreText);
 
-                    enterNameText.setString("Enter your name: " + playerName + "_"); // Wyœwietlaj wprowadzany tekst
+                    enterNameText.setString("Enter your name: " + playerName + "_"); //     Dynamiczne wyœwietlanie tekstu
                     window.draw(enterNameText);
 
                     window.display();
@@ -542,16 +539,16 @@ int main()
                             return 0;
                         }
                         if (event.type == sf::Event::TextEntered) {
-                            if (event.text.unicode == '\b') { // Obs³uga klawisza Backspace
+                            if (event.text.unicode == '\b') { // Backspace
                                 if (!playerName.empty()) {
                                     playerName.pop_back();
                                 }
                             }
-                            else if (event.text.unicode == '\r') { // Enter koñczy wprowadzanie
+                            else if (event.text.unicode == '\r') { // Potwierdzenie nicku
                                 enterName = true;
-                                saveScoreToFile(playerName, score); // Zapisujemy wynik do pliku
+                                saveScoreToFile(playerName, score); // Zapis do pliku
                             }
-                            else if (playerName.size() < 15 && isprint(event.text.unicode)) { // Ograniczenie d³ugoœci nicku
+                            else if (playerName.size() < 15 && isprint(event.text.unicode)) {
                                 playerName += static_cast<char>(event.text.unicode);
                             }
                         }
@@ -578,7 +575,7 @@ int main()
                             window.close();
                             return 0;
                         }
-                        break; // Opuszczenie pêtli obs³ugi wpisywania nazwy
+                        break;
                     }
 
                 }
@@ -586,7 +583,7 @@ int main()
                 return 0;
 
             }
-            else { // Po wprowadzeniu nicku wyœwietl ekran koñcowy
+            else {
                 window.clear(sf::Color::Black);
                 window.draw(gameOverText);
                 window.draw(finalScoreText);
