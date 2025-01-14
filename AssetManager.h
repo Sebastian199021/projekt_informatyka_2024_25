@@ -4,27 +4,27 @@
 #include <SFML/Graphics.hpp>
 #include <map>
 #include <string>
-
+// Klasa zarz¹dza zasobami gry (tekstury, czcionki)
 class AssetManager {
 private:
+    // Mapy przechowuj¹ce nazwy zasobu
     std::map<std::string, sf::Texture> textures;
     std::map<std::string, sf::Font> fonts;
 
 public:
-    // Funkcja ³adowania tekstur
+    // Funkcja ³aduje tekstury i zapisuje je w mapie textures
     bool loadTexture(const std::string& name, const std::string& filePath);
 
-    // Pobranie tekstury
+    // Referencja do za³adowanej tekstury
     const sf::Texture& getTexture(const std::string& name) const;
 
-    // Funkcja ³adowania czcionek
+    // To samo co z teksturami, ale dla czcionek
     bool loadFont(const std::string& name, const std::string& filePath);
 
-    // Pobranie czcionki
     const sf::Font& getFont(const std::string& name) const;
 
-    // Tworzenie tekstu
+    // Tworzenie obiektu sf::Text na podstawie za³adowanej czcionki
     sf::Text createText(const std::string& fontName, const std::string& content, unsigned int size, sf::Color color, sf::Vector2f position) const;
 };
 
-#endif // ASSETMANAGER_H
+#endif
