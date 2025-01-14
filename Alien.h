@@ -3,8 +3,10 @@
 
 #include <SFML/Graphics.hpp>
 
+// Klasa alien reprezentuje przeciwnika
 class Alien {
 public:
+    //konstruktor inicjalizuj¹cy przeciwnika
     Alien(const sf::Texture& texture, float x, float y, float scale);
 
     void markHit();
